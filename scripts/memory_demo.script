@@ -1,0 +1,23 @@
+role: system
+Walks through the four memory tools.
+---
+role: assistant
+I'll remember those.<|tool_call|>{"id":"m1","name":"remember","arguments":{"text":"Project demo is on Dec 3 in EB2"}}<|/tool_call|><|tool_call|>{"id":"m2","name":"remember","arguments":{"text":"Sina prefers email over the forum"}}<|/tool_call|><|tool_call|>{"id":"m3","name":"remember","arguments":{"text":"The demo needs a laptop with WSL"}}<|/tool_call|>
+---
+role: assistant
+Saved three memories.
+---
+role: assistant
+Let me check.<|tool_call|>{"id":"r1","name":"recall","arguments":{"query":"when is the demo","k":2}}<|/tool_call|>
+---
+role: assistant
+The demo is on Dec 3 in EB2, and you need a laptop with WSL.
+---
+role: assistant
+Forgetting it.<|tool_call|>{"id":"f1","name":"forget","arguments":{"id":"m2"}}<|/tool_call|><|tool_call|>{"id":"f2","name":"forget","arguments":{"id":"m9"}}<|/tool_call|><|tool_call|>{"id":"l1","name":"list_memories","arguments":{}}<|/tool_call|>
+---
+role: assistant
+Done. Two memories remain.
+---
+role: assistant
+Goodbye!<|end_conversation|>

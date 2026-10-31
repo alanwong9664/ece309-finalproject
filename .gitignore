@@ -1,0 +1,6 @@
+/build*/
+/github.zip
+/CMakeUserPresets.json
+*.o
+*.a
+*.exe

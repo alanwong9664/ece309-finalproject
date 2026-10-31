@@ -1,0 +1,14 @@
+you> assistant> Searching.<|tool_call|>{"id":"s1","name":"list_skills","arguments":{"query":"csv report table"}}<|/tool_call|>
+[tool list_skills s1 -> ok] csv-report: Turn a CSV of sales rows into a formatted summar...
+assistant> csv-report fits best. Loading it.<|tool_call|>{"id":"s2","name":"load_skill","arguments":{"name":"csv-report"}}<|/tool_call|>
+[tool load_skill s2 -> ok] Loaded 4 skills (dependencies first): read-csv, number-forma...
+assistant> I have the steps for the report.
+you> assistant> Checking.<|tool_call|>{"id":"s3","name":"skill_dependents","arguments":{"name":"number-format"}}<|/tool_call|><|tool_call|>{"id":"s4","name":"load_skill","arguments":{"name":"draft-intro"}}<|/tool_call|><|tool_call|>{"id":"s5","name":"load_skill","arguments":{"name":"release-notes"}}<|/tool_call|><|tool_call|>{"id":"s6","name":"load_skill","arguments":{"name":"csv-report"}}<|/tool_call|>
+[tool skill_dependents s3 -> ok] depend on number-format: csv-report table-format
+[tool load_skill s4 -> error] cycle: draft-intro -> draft-outline -> draft-intro
+[tool load_skill s5 -> error] missing: changelog-format (required by release-notes)
+[tool load_skill s6 -> ok] Loaded 4 skills (dependencies first): read-csv, number-forma...
+assistant> Two skills are broken: draft-intro has a cycle and release-notes needs a missing skill.
+you> assistant> Goodbye!
+[conversation ended: Stop sentinel detected]
+[exit 0]

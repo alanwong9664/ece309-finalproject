@@ -1,0 +1,11 @@
+you> assistant> Loading the style rules.<|tool_call|>{"id":"c1","name":"load_skill","arguments":{"name":"cpp-style"}}<|/tool_call|>
+[tool load_skill c1 -> ok] Loaded 1 skill (dependencies first): cpp-style\n\n## cpp-sty...
+assistant> Got the style rules; they stay pinned in context.
+you> [context: sent 5 of 6 messages, 1406 tokens]
+assistant> Here is a long answer about move constructors: they steal the buffer, set the source pointer to null, and leave the source empty but valid, so its destructor does nothing harmful.
+you> [context: sent 7 of 8 messages, 1446 tokens]
+assistant> Copy assignment must handle self-assignment and free the old buffer only after the new copy succeeds.
+you> [context: sent 7 of 10 messages, 1421 tokens]
+assistant> Goodbye!
+[conversation ended: Stop sentinel detected]
+[exit 0]

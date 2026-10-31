@@ -1,0 +1,25 @@
+- calculator: Evaluate an arithmetic expression and return the numeric result.
+  parameters: {"type":"object","properties":{"expression":{"type":"string","description":"Arithmetic using + - * / and parentheses, e.g. \"(2+3)*4\""}},"required":["expression"]}
+- forget: Delete one memory by id.
+  parameters: {"type":"object","properties":{"id":{"type":"string","description":"memory id such as m3"}},"required":["id"]}
+- list_dir: List a directory inside the workspace: sorted entries with file sizes.
+  parameters: {"type":"object","properties":{"path":{"type":"string","description":"Directory relative to the workspace root (default \".\")"},"recursive":{"type":"boolean","description":"Descend into subdirectories (default false)"}},"required":[]}
+- list_memories: List every memory, oldest first.
+  parameters: {"type":"object","properties":{},"required":[]}
+- list_skills: List available skills, or search them by keyword.
+  parameters: {"type":"object","properties":{"query":{"type":"string","description":"optional search words"},"k":{"type":"number","description":"maximum results when searching (default 5)"}},"required":[]}
+- load_skill: Load a skill's instructions, with everything it requires.
+  parameters: {"type":"object","properties":{"name":{"type":"string","description":"skill name"}},"required":["name"]}
+- read_file: Read a text file inside the workspace and return its contents.
+  parameters: {"type":"object","properties":{"path":{"type":"string","description":"File path relative to the workspace root"},"max_bytes":{"type":"number","description":"Maximum number of bytes to return"}},"required":["path"]}
+- recall: Find the memories that best match a query.
+  parameters: {"type":"object","properties":{"query":{"type":"string","description":"words to look for"},"k":{"type":"number","description":"maximum results (default 3)"}},"required":["query"]}
+- remember: Store a fact in long-term memory.
+  parameters: {"type":"object","properties":{"text":{"type":"string","description":"what to remember"}},"required":["text"]}
+- run_command: Run a command (simulated) after the permission policy approves it.
+  parameters: {"type":"object","properties":{"program":{"type":"string","description":"program name, e.g. ls"},"args":{"type":"array","description":"arguments, each a string"}},"required":["program"]}
+- skill_dependents: List the skills that depend on a skill, nearest first.
+  parameters: {"type":"object","properties":{"name":{"type":"string","description":"skill name"}},"required":["name"]}
+- write_file: Write (or append) text to a file inside the workspace, creating parent directories.
+  parameters: {"type":"object","properties":{"path":{"type":"string","description":"File path relative to the workspace root"},"content":{"type":"string","description":"Text to write"},"append":{"type":"boolean","description":"Append instead of overwriting (default false)"}},"required":["path","content"]}
+[exit 0]

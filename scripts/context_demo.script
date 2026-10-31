@@ -1,0 +1,17 @@
+role: system
+Long chat under a small context budget.
+---
+role: assistant
+Loading the style rules.<|tool_call|>{"id":"c1","name":"load_skill","arguments":{"name":"cpp-style"}}<|/tool_call|>
+---
+role: assistant
+Got the style rules; they stay pinned in context.
+---
+role: assistant
+Here is a long answer about move constructors: they steal the buffer, set the source pointer to null, and leave the source empty but valid, so its destructor does nothing harmful.
+---
+role: assistant
+Copy assignment must handle self-assignment and free the old buffer only after the new copy succeeds.
+---
+role: assistant
+Goodbye!<|end_conversation|>

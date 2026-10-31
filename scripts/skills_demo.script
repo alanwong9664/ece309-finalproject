@@ -1,0 +1,20 @@
+role: system
+Walks through the three skill tools, including the broken skills.
+---
+role: assistant
+Searching.<|tool_call|>{"id":"s1","name":"list_skills","arguments":{"query":"csv report table"}}<|/tool_call|>
+---
+role: assistant
+csv-report fits best. Loading it.<|tool_call|>{"id":"s2","name":"load_skill","arguments":{"name":"csv-report"}}<|/tool_call|>
+---
+role: assistant
+I have the steps for the report.
+---
+role: assistant
+Checking.<|tool_call|>{"id":"s3","name":"skill_dependents","arguments":{"name":"number-format"}}<|/tool_call|><|tool_call|>{"id":"s4","name":"load_skill","arguments":{"name":"draft-intro"}}<|/tool_call|><|tool_call|>{"id":"s5","name":"load_skill","arguments":{"name":"release-notes"}}<|/tool_call|><|tool_call|>{"id":"s6","name":"load_skill","arguments":{"name":"csv-report"}}<|/tool_call|>
+---
+role: assistant
+Two skills are broken: draft-intro has a cycle and release-notes needs a missing skill.
+---
+role: assistant
+Goodbye!<|end_conversation|>

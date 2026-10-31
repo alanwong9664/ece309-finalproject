@@ -1,0 +1,29 @@
+role: system
+Every run_command goes through the policy chain. Nothing really runs.
+---
+role: assistant
+Listing files.<|tool_call|>{"id":"p1","name":"run_command","arguments":{"program":"ls","args":["-l"]}}<|/tool_call|>
+---
+role: assistant
+Here is the listing (simulated).
+---
+role: assistant
+Trying the risky ones.<|tool_call|>{"id":"p2","name":"run_command","arguments":{"program":"rm","args":["-r","build"]}}<|/tool_call|><|tool_call|>{"id":"p3","name":"run_command","arguments":{"program":"cat","args":["notes.txt;","rm","x"]}}<|/tool_call|>
+---
+role: assistant
+Both were blocked.
+---
+role: assistant
+Checking git.<|tool_call|>{"id":"p4","name":"run_command","arguments":{"program":"git","args":["status"]}}<|/tool_call|><|tool_call|>{"id":"p5","name":"run_command","arguments":{"program":"make","args":["clean"]}}<|/tool_call|>
+---
+role: assistant
+git status ran; you declined make clean.
+---
+role: assistant
+A few quick checks.<|tool_call|>{"id":"p6","name":"run_command","arguments":{"program":"echo","args":["hi"]}}<|/tool_call|><|tool_call|>{"id":"p7","name":"run_command","arguments":{"program":"wc","args":["-l","notes.txt"]}}<|/tool_call|><|tool_call|>{"id":"p8","name":"run_command","arguments":{"program":"head","args":["notes.txt"]}}<|/tool_call|>
+---
+role: assistant
+The third check hit the rate limit (5 commands per minute).
+---
+role: assistant
+Goodbye!<|end_conversation|>

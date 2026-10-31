@@ -1,0 +1,16 @@
+you> assistant> I'll remember those.<|tool_call|>{"id":"m1","name":"remember","arguments":{"text":"Project demo is on Dec 3 in EB2"}}<|/tool_call|><|tool_call|>{"id":"m2","name":"remember","arguments":{"text":"Sina prefers email over the forum"}}<|/tool_call|><|tool_call|>{"id":"m3","name":"remember","arguments":{"text":"The demo needs a laptop with WSL"}}<|/tool_call|>
+[tool remember m1 -> ok] remembered m1
+[tool remember m2 -> ok] remembered m2
+[tool remember m3 -> ok] remembered m3
+assistant> Saved three memories.
+you> assistant> Let me check.<|tool_call|>{"id":"r1","name":"recall","arguments":{"query":"when is the demo","k":2}}<|/tool_call|>
+[tool recall r1 -> ok] m3: The demo needs a laptop with WSL\nm1: Project demo is on...
+assistant> The demo is on Dec 3 in EB2, and you need a laptop with WSL.
+you> assistant> Forgetting it.<|tool_call|>{"id":"f1","name":"forget","arguments":{"id":"m2"}}<|/tool_call|><|tool_call|>{"id":"f2","name":"forget","arguments":{"id":"m9"}}<|/tool_call|><|tool_call|>{"id":"l1","name":"list_memories","arguments":{}}<|/tool_call|>
+[tool forget f1 -> ok] forgot m2
+[tool forget f2 -> error] <reason>
+[tool list_memories l1 -> ok] m1: Project demo is on Dec 3 in EB2\nm3: The demo needs a la...
+assistant> Done. Two memories remain.
+you> assistant> Goodbye!
+[conversation ended: Stop sentinel detected]
+[exit 0]
