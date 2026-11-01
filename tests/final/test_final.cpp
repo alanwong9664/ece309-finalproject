@@ -1,29 +1,3 @@
-// tests/final/test_final.cpp — YOUR TEST SUITE (spec §8).
-//
-// You need at least 20 tests. The 8 examples below are given and count:
-//   Memory  (4): heap, lru, bst, ctx
-//   Policy  (2): pol x2
-//   Skills  (2): graph, index
-// Write at least 12 more of your own, covering the list in spec §8.
-// Name tests <area>_<what> with the areas heap, lru, bst, ctx, pol, graph,
-// index, so the summary groups them.
-//
-//   ./build/test_final              run everything
-//   ./build/test_final lru_         only tests whose names start with lru_
-//   ./build/test_final =lru_evicts_least_recently_used    one test, exactly
-//   ./build/test_final --list       list test names
-//
-// If a sanitizer error (ASan/UBSan) aborts the run, the tests after it do
-// not run: rerun the failing test alone with =its_name and read the FIRST
-// stack frame that is in your own file.
-//
-// CHECK_EQ(a, b) prints both values when it fails (vectors too), so prefer
-// it over CHECK(a == b).
-//
-// Helpers you can use (tests/test_helpers.h): TempDir, write_text,
-// write_skill, FixedPolicy, ScriptedConfirmer, LinesInput, StringOutput,
-// parse_ok, args1. ManualClock is in policy/policy.h.
-
 #include "../mini_test.h"
 #include "../test_helpers.h"
 
@@ -52,11 +26,6 @@
 #include <utility>
 #include <vector>
 
-// =========================================================================
-// Memory — 4 examples
-// =========================================================================
-
-// Example 1 (heap): items come back smallest first, duplicates included.
 TEST(heap_pops_in_order) {
     MinHeap<int> h;
     for (int x : {5, 1, 4, 1, 3}) h.push(x);
@@ -67,22 +36,18 @@ TEST(heap_pops_in_order) {
     CHECK_EQ(got, (std::vector<int>{1, 1, 3, 4, 5}));
 }
 
-// Example 2 (lru): the least recently USED entry is evicted, and get()
-// counts as a use.
 TEST(lru_evicts_least_recently_used) {
     LruCache<std::string, int> c(2);
     c.put("a", 1);
     c.put("b", 2);
-    REQUIRE(c.get("a") != nullptr);   // "a" is now the most recent
-    c.put("c", 3);                    // full: "b" must go
+    REQUIRE(c.get("a") != nullptr);
+    c.put("c", 3);
     CHECK(c.contains("a"));
     CHECK(!c.contains("b"));
     CHECK_EQ(c.keys_mru_to_lru(), (std::vector<std::string>{"c", "a"}));
     CHECK_EQ(c.stats().evictions, std::size_t{1});
 }
 
-// Example 3 (bst): removing a node with two children keeps the tree sorted,
-// keeps every other record, and lowers size() by exactly one.
 TEST(bst_remove_two_children) {
     MemoryIndex t;
     for (std::uint64_t id : {50, 30, 70, 60, 80}) REQUIRE(t.insert(MemoryRecord{id, "m" + std::to_string(id)}));
@@ -96,46 +61,37 @@ TEST(bst_remove_two_children) {
     CHECK_EQ(t.size(), std::size_t{4});
 }
 
-// Example 4 (ctx): the worked example in spec §4.4.
 TEST(ctx_spec_example) {
     std::vector<ContextItem> items{
-        {Role::System, 10, false},     // 0  protected
-        {Role::User, 10, false},       // 1
-        {Role::Assistant, 10, false},  // 2  dropped 3rd (oldest assistant)
-        {Role::Tool, 10, false},       // 3  dropped 1st
-        {Role::Assistant, 10, false},  // 4
-        {Role::Tool, 10, false},       // 5  dropped 2nd
-        {Role::User, 10, false},       // 6  recent: protected
-        {Role::Assistant, 10, false}}; // 7  recent: protected
+        {Role::System, 10, false},
+        {Role::User, 10, false},
+        {Role::Assistant, 10, false},
+        {Role::Tool, 10, false},
+        {Role::Assistant, 10, false},
+        {Role::Tool, 10, false},
+        {Role::User, 10, false},
+        {Role::Assistant, 10, false}};
     ContextPlan p = select_context(items, 50, 2);
     CHECK_EQ(p.keep, (std::vector<std::size_t>{0, 1, 4, 6, 7}));
     CHECK_EQ(p.total_tokens, std::size_t{50});
     CHECK(!p.over_budget);
 }
 
-// =========================================================================
-// Policy — 2 examples
-// =========================================================================
-
-// Example 5 (pol): the sliding window. A request exactly `window` seconds
-// after an allowed one no longer counts it.
 TEST(pol_rate_limit_window_boundary) {
     ManualClock clock(100);
-    RateLimitPolicy p(2, 10.0, clock);   // at most 2 per 10 s
+    RateLimitPolicy p(2, 10.0, clock);
     CommandRequest req;
     req.program = "ls";
-    CHECK(p.evaluate(req).kind == Decision::Kind::Allow);   // t = 100
+    CHECK(p.evaluate(req).kind == Decision::Kind::Allow);
     clock.advance(1);
-    CHECK(p.evaluate(req).kind == Decision::Kind::Allow);   // t = 101
+    CHECK(p.evaluate(req).kind == Decision::Kind::Allow);
     clock.advance(1);
-    CHECK(p.evaluate(req).kind == Decision::Kind::Deny);    // t = 102: two in the window
+    CHECK(p.evaluate(req).kind == Decision::Kind::Deny);
     clock.advance(8);
-    CHECK(p.evaluate(req).kind == Decision::Kind::Allow);   // t = 110: 100 has left (110 - 100 = 10)
+    CHECK(p.evaluate(req).kind == Decision::Kind::Allow);
     CHECK(p.tracked() <= 2u);
 }
 
-// Example 6 (pol): first Deny wins and later policies are not asked; with no
-// Deny, the FIRST Ask is returned unchanged.
 TEST(pol_chain_first_deny_stops_first_ask_wins) {
     auto ask1 = std::make_unique<FixedPolicy>(Decision::Kind::Ask, "ask1");
     auto ask2 = std::make_unique<FixedPolicy>(Decision::Kind::Ask, "ask2");
@@ -151,40 +107,32 @@ TEST(pol_chain_first_deny_stops_first_ask_wins) {
 
     auto deny = std::make_unique<FixedPolicy>(Decision::Kind::Deny, "no");
     auto after = std::make_unique<FixedPolicy>(Decision::Kind::Allow, "after");
-    FixedPolicy* after_ptr = after.get();   // still valid: the chain owns it now
+    FixedPolicy* after_ptr = after.get();
     REQUIRE(chain.add(std::move(deny)));
     REQUIRE(chain.add(std::move(after)));
     d = chain.evaluate(req);
     CHECK(d.kind == Decision::Kind::Deny);
     CHECK_EQ(d.policy, std::string("no"));
-    CHECK_EQ(after_ptr->calls, 0);     // never evaluated: the chain stopped at the Deny
+    CHECK_EQ(after_ptr->calls, 0);
 }
 
-// =========================================================================
-// Skills — 2 examples
-// =========================================================================
-
-// Example 7 (graph): post-order load order, and a cycle message that lists
-// only the nodes still on the DFS path (b is already finished).
 TEST(graph_order_and_cycle_message) {
     DepGraph g;
     for (const char* n : {"a", "b", "c", "d"}) g.add_node(n);
-    g.add_edge("a", "b");   // a requires b
+    g.add_edge("a", "b");
     g.add_edge("a", "c");
     g.add_edge("b", "d");
-    g.add_edge("c", "d");   // diamond: d is reached twice, but it is not a cycle
+    g.add_edge("c", "d");
     std::vector<std::string> order;
     std::string error;
     REQUIRE(g.order_from("a", &order, &error));
     CHECK_EQ(order, (std::vector<std::string>{"d", "b", "c", "a"}));
 
-    g.add_edge("c", "a");   // now a -> c -> a is a cycle
+    g.add_edge("c", "a");
     CHECK(!g.order_from("a", &order, &error));
     CHECK_EQ(error, std::string("cycle: a -> c -> a"));
 }
 
-// Example 8 (index): rank by number of distinct query words; ties go to the
-// smaller doc id.
 TEST(index_ranking_and_ties) {
     SkillIndex ix;
     ix.add(0, "format numbers");
@@ -196,10 +144,6 @@ TEST(index_ranking_and_ties) {
     REQUIRE(ix.postings("numbers") != nullptr);
     CHECK_EQ(*ix.postings("numbers"), (std::vector<std::size_t>{0, 1}));
 }
-
-// =========================================================================
-// Your tests (at least 12 more). Spec §8 lists what they must cover.
-// =========================================================================
 
 namespace {
 using BenchClock = std::chrono::steady_clock;
@@ -322,11 +266,11 @@ TEST(lru_capacity_zero_one_stats) {
 TEST(lru_erase_positions_and_clear) {
     LruCache<int, int> cache(4);
     for (int key : {1, 2, 3, 4}) cache.put(key, key * 10);
-    CHECK(cache.erase(4)); // head
+    CHECK(cache.erase(4));
     CHECK_EQ(cache.keys_mru_to_lru(), (std::vector<int>{3, 2, 1}));
-    CHECK(cache.erase(2)); // middle
+    CHECK(cache.erase(2));
     CHECK_EQ(cache.keys_mru_to_lru(), (std::vector<int>{3, 1}));
-    CHECK(cache.erase(1)); // tail
+    CHECK(cache.erase(1));
     CHECK_EQ(cache.keys_mru_to_lru(), (std::vector<int>{3}));
     CHECK(!cache.erase(99));
     REQUIRE(cache.get(3));
@@ -343,7 +287,7 @@ TEST(lru_erase_positions_and_clear) {
 
 TEST(lru_randomized_reference) {
     LruCache<int, int> cache(7);
-    std::vector<std::pair<int, int>> model; // MRU first; a deliberately simple reference
+    std::vector<std::pair<int, int>> model;
     std::mt19937 random(310);
     std::size_t hits = 0, misses = 0, evictions = 0;
     for (int step = 0; step < 20000; ++step) {
@@ -405,9 +349,9 @@ TEST(bst_remove_cases_duplicates_height) {
     CHECK(!tree.insert({30, "replacement"}));
     REQUIRE(tree.find(30));
     CHECK_EQ(tree.find(30)->text, std::string("30"));
-    CHECK(tree.remove(20)); // leaf
-    CHECK(tree.remove(30)); // one child
-    CHECK(tree.remove(50)); // root, two children
+    CHECK(tree.remove(20));
+    CHECK(tree.remove(30));
+    CHECK(tree.remove(50));
     CHECK_EQ(tree_ids(tree), (std::vector<std::uint64_t>{40, 60, 70, 80}));
     CHECK_EQ(tree.size(), std::size_t{4});
     for (std::uint64_t id : {60, 70, 80, 40}) CHECK(tree.remove(id));
@@ -432,7 +376,7 @@ TEST(bst_successor_with_right_child) {
     CHECK_EQ(tree.find(60)->text, std::string("record60"));
     REQUIRE(tree.find(65));
     CHECK_EQ(tree.find(65)->text, std::string("record65"));
-    CHECK(tree.remove(80)); // immediate-right successor
+    CHECK(tree.remove(80));
     CHECK_EQ(tree.size(), std::size_t{4});
 }
 
@@ -708,7 +652,7 @@ TEST(graph_dependents_distance_cycles_and_missing) {
     for (const auto* name : {"z", "b", "a", "c", "far"}) graph.add_node(name);
     graph.add_edge("z", "missing"); graph.add_edge("b", "missing");
     graph.add_edge("a", "z"); graph.add_edge("c", "b"); graph.add_edge("far", "a");
-    graph.add_edge("b", "c"); // reverse traversal must terminate despite this cycle
+    graph.add_edge("b", "c");
     CHECK_EQ(graph.dependents("missing"), (std::vector<std::string>{"b", "z", "a", "c", "far"}));
     CHECK_EQ(graph.dependents("b"), (std::vector<std::string>{"c"}));
     CHECK(graph.dependents("unknown").empty());
@@ -764,7 +708,7 @@ TEST(graph_catalog_lazy_bodies_and_cache) {
     CHECK_EQ(scanned.loaded, std::size_t{2});
     CHECK(scanned.errors.empty());
     CHECK_EQ(catalog.body_reads(), std::size_t{0});
-    // A body changed after scanning is read lazily at the first load.
+
     write_skill(temp.path(), "base", "base instructions", {}, "changed base body");
     std::string text, error;
     REQUIRE(catalog.load("report", &text, &error));

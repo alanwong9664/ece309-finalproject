@@ -1,5 +1,3 @@
-// include/model/scripted_client.h
-
 #pragma once
 #include "model/model_client.h"
 #include <string>
@@ -8,7 +6,7 @@
 
 class ScriptedModelClient : public ModelClient {
 public:
-    // CRITICAL: Fix name hiding so generate(conv) is visible
+
     using ModelClient::generate;
 
     explicit ScriptedModelClient(const std::string& script_path);
@@ -18,7 +16,7 @@ public:
 private:
     struct ScriptBlock {
         std::string content;
-        int chunk_size = -1; // -1 means emit all at once
+        int chunk_size = -1;
     };
 
     std::vector<ScriptBlock> blocks_;

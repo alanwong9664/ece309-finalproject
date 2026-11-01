@@ -6,7 +6,6 @@
 #include <utility>
 #include <vector>
 
-// Every parent precedes its children under less_.
 template <typename T, typename Less = std::less<T>>
 class MinHeap {
 public:
@@ -52,7 +51,6 @@ private:
     Less less_;
 };
 
-// Retain at most k elements, with the worst retained item at the root.
 template <typename T, typename Less = std::less<T>>
 std::vector<T> top_k(const std::vector<T>& items, std::size_t k, Less less = Less()) {
     if (k == 0 || items.empty()) return {};

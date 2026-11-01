@@ -1,13 +1,3 @@
-// src/tools/tool_registry.cpp — P3 instructor reference (used only with -DUSE_P3_REFERENCE=ON).
-//
-// Separate chaining. Buckets are a vector of owning singly-linked lists.
-//   hash        : 64-bit FNV-1a
-//   bucket count: power of two (index = hash & (n - 1)), starts at 8
-//   resize      : double the bucket count when an insert would push the
-//                 load factor above 0.75
-// Nodes are moved (not copied) between buckets on rehash, so Tool* handed
-// out by find() stay valid.
-
 #include "tools/tool_registry.h"
 
 #include <cstdint>
@@ -16,23 +6,22 @@
 namespace {
 constexpr std::size_t kInitialBuckets = 8;
 constexpr double      kMaxLoadFactor  = 0.75;
-}  // namespace
+}
 
 ToolRegistry::ToolRegistry() : buckets_(kInitialBuckets) {}
 
 ToolRegistry::~ToolRegistry() {
-    // Unlink chains iteratively so a long chain cannot overflow the stack
-    // through recursive unique_ptr<Node> destructors.
+
     for (auto& head : buckets_) {
         while (head) head = std::move(head->next);
     }
 }
 
 std::size_t ToolRegistry::hash(std::string_view key) noexcept {
-    std::uint64_t h = 1469598103934665603ULL;          // FNV offset basis
+    std::uint64_t h = 1469598103934665603ULL;
     for (unsigned char c : key) {
         h ^= c;
-        h *= 1099511628211ULL;                          // FNV prime
+        h *= 1099511628211ULL;
     }
     return static_cast<std::size_t>(h);
 }

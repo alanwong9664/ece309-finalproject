@@ -1,30 +1,3 @@
-// tests/mini_test.h
-//
-// PROVIDED. A tiny, dependency-free test framework.
-//
-//   TEST(reg_add_then_find) {
-//       ToolRegistry r;
-//       REQUIRE(r.add(std::make_unique<NamedTool>("a")));   // stop this test on failure
-//       CHECK(r.find("a") != nullptr);                     // record failure, keep going
-//       CHECK_EQ(r.size(), std::size_t{1});
-//   }
-//
-//   int main(int argc, char** argv) { return mt::run_all(argc, argv); }
-//
-// Unlike assert(), CHECK/REQUIRE are never compiled out by NDEBUG, a failing
-// test does not stop the other tests, and an exception escaping a test is
-// reported as a failure of that test.
-//
-// CHECK_EQ prints both sides on failure, including vectors and pairs.
-//
-// Run a subset:  ./test_p3 reg_       (runs tests whose names start with "reg_")
-// Run one test:   ./test_p3 =reg_add_and_find   (exact name)
-// List tests:     ./test_p3 --list
-// If a sanitizer (ASan/UBSan) error aborts the run, the remaining tests do not
-// run: rerun the failing test alone with  =its_name  to read its report.
-// The summary groups results by the prefix before the first '_' in each
-// test name, so name tests <area>_<what>, e.g. reg_resizes.
-
 #pragma once
 #include <cstdio>
 #include <exception>
@@ -54,7 +27,7 @@ struct Registrar {
     }
 };
 
-struct AbortTest {};   // thrown by REQUIRE to leave the current test
+struct AbortTest {};
 
 inline int& failures_in_current() {
     static int n = 0;
@@ -66,9 +39,6 @@ inline void report(const char* file, int line, const std::string& what) {
     std::printf("    %s:%d: failed: %s\n", file, line, what.c_str());
 }
 
-// show(): prints a value for a failed CHECK_EQ. Handles anything with
-// operator<<, plus std::vector, std::pair, strings (quoted), and enums
-// (printed as their number), so CHECK_EQ(got, want) works on vectors.
 template <typename T, typename = void>
 struct printable : std::false_type {};
 template <typename T>
@@ -119,7 +89,7 @@ inline int run_all(int argc, char** argv) {
         return 0;
     }
     const bool exact = !filter.empty() && filter[0] == '=';
-    std::map<std::string, std::pair<int, int>> by_area;   // area -> (passed, total)
+    std::map<std::string, std::pair<int, int>> by_area;
     int passed = 0, total = 0;
 
     for (const TestCase& t : registry()) {
@@ -163,7 +133,7 @@ inline int run_all(int argc, char** argv) {
     return passed == total ? 0 : 1;
 }
 
-}  // namespace mt
+}
 
 #define MT_CAT2(a, b) a##b
 #define MT_CAT(a, b) MT_CAT2(a, b)
@@ -195,7 +165,6 @@ inline int run_all(int argc, char** argv) {
                          ::mt::describe_eq(#a, #b, mt_a_, mt_b_));    \
     } while (0)
 
-// Passes if `expr` throws an exception of type `ex` (or a subclass).
 #define CHECK_THROWS(expr, ex)                                        \
     do {                                                              \
         bool mt_threw_ = false;                                       \

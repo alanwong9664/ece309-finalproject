@@ -1,5 +1,3 @@
-// src/memory/memory_store.cpp — PROVIDED.
-
 #include "memory/memory_store.h"
 #include "util/min_heap.h"
 #include "util/text.h"
@@ -31,14 +29,14 @@ struct Scored {
     std::uint64_t id;
     std::string   text;
 };
-// "less" = worse: lower score, or equal score and older.
+
 struct WorseThan {
     bool operator()(const Scored& a, const Scored& b) const {
         if (a.score != b.score) return a.score < b.score;
         return a.id < b.id;
     }
 };
-}  // namespace
+}
 
 std::vector<MemoryRecord> MemoryStore::recall(std::string_view query, std::size_t k) const {
     std::vector<std::string> q = unique_tokens(query);
@@ -101,7 +99,7 @@ bool parse_u64(const std::string& s, std::uint64_t* v) {
     }
     return true;
 }
-}  // namespace
+}
 
 bool MemoryStore::save(const fs::path& file, std::string* error) const {
     fs::path tmp = file;
@@ -117,7 +115,7 @@ bool MemoryStore::save(const fs::path& file, std::string* error) const {
         if (!out) { *error = "write failed: " + tmp.string(); return false; }
     }
     std::error_code ec;
-    fs::rename(tmp, file, ec);   // atomic on POSIX: readers see old or new, never half
+    fs::rename(tmp, file, ec);
     if (ec) { *error = "rename failed: " + ec.message(); return false; }
     return true;
 }

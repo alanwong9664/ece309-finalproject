@@ -1,8 +1,5 @@
-// src/model/model_client.cpp — PROVIDED.
-
 #include "model/model_client.h"
 
-// A simple sink to collect the full string when we don't care about streaming
 class StringSink : public TokenSink {
 public:
     std::string content;

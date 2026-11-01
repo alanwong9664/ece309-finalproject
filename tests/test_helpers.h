@@ -1,20 +1,3 @@
-// tests/test_helpers.h
-//
-// PROVIDED. Helpers shared by the test files. Use them in your own tests:
-//   TempDir d;                         a fresh empty directory, deleted at scope exit
-//   write_text(d.path() / "a.txt", "hi");
-//   read_text(path)                    whole file as a string
-//   args1("path", JsonValue::string("a.txt"))    a one-member JSON object
-//   LinesInput / StringOutput / ListModel        fake user, terminal, and model
-//   call("c1", "calculator", R"({"expression":"1+1"})")   a tool-call block
-//   result_json(msg)                   the JSON inside a <|tool_result|> message
-//   field(obj, "ok")                   obj's member "ok" (throws if missing)
-//
-// Final project:
-//   FixedPolicy p(Decision::Kind::Ask)   always answers the same; counts calls
-//   ScriptedConfirmer c({true, false})   answers Ask prompts from a list
-//   write_skill(dir, "a", "desc", {"b"}, "body")   creates dir/a/SKILL.md
-
 #pragma once
 #include "harness/harness.h"
 #include "json/json_value.h"
@@ -29,13 +12,12 @@
 #include <system_error>
 #include <vector>
 
-#include <stdlib.h>   // mkdtemp (POSIX)
+#include <stdlib.h>
 
 namespace test_helpers {
 
 namespace fs = std::filesystem;
 
-// A fresh, empty directory that is removed when the object dies.
 class TempDir {
 public:
     TempDir() {
@@ -79,16 +61,12 @@ inline bool parse_fails(const std::string& text, std::size_t depth = JsonValue::
     return !err.empty() && v.type() == JsonValue::Type::Null;
 }
 
-
-
 inline JsonValue args1(const std::string& k, JsonValue v) {
     JsonValue o = JsonValue::object();
     o.set(k, std::move(v));
     return o;
 }
 
-// A trivial tool, defined only here, to show that adding a tool needs no
-// change to any existing tool.
 class EchoTool : public Tool {
 public:
     explicit EchoTool(std::string name = "echo") : name_(std::move(name)), schema_(JsonValue::object()) {
@@ -137,8 +115,6 @@ public:
     void write(std::string_view t) override { data += t; }
 };
 
-// Replies from a fixed list; records how many times it was asked and what
-// the last message it saw was. Past the end it throws (-> ClientError).
 class ListModel : public ModelClient {
 public:
     using ModelClient::generate;
@@ -165,15 +141,12 @@ inline std::string call(const std::string& id, const std::string& name, const st
            args_json + "}<|/tool_call|>";
 }
 
-// The member `key` of a JSON object, or throws (the test framework reports
-// the throw as a failure of that test, instead of crashing on nullptr).
 inline const JsonValue& field(const JsonValue& obj, const char* key) {
     const JsonValue* v = obj.find(key);
     if (v == nullptr) throw std::runtime_error(std::string("missing JSON member: ") + key);
     return *v;
 }
 
-// Pulls the JSON out of a <|tool_result|>...<|/tool_result|> message.
 inline JsonValue result_json(const Message& m) {
     const std::string& s = m.content();
     const std::string open = "<|tool_result|>", close = "<|/tool_result|>";
@@ -183,9 +156,6 @@ inline JsonValue result_json(const Message& m) {
     return parse_ok(s.substr(open.size(), s.size() - open.size() - close.size()));
 }
 
-// ---- Final project helpers ------------------------------------------------
-
-// A policy that always gives the same answer and counts how often it was asked.
 class FixedPolicy : public Policy {
 public:
     explicit FixedPolicy(Decision::Kind k, std::string name = "fixed") : kind_(k), name_(std::move(name)) {}
@@ -200,7 +170,6 @@ private:
     std::string    name_;
 };
 
-// Answers confirmation prompts from a list (then "no"), recording each prompt.
 class ScriptedConfirmer : public Confirmer {
 public:
     explicit ScriptedConfirmer(std::vector<bool> answers) : answers_(std::move(answers)) {}
@@ -214,7 +183,6 @@ private:
     std::size_t i_ = 0;
 };
 
-// Creates <root>/<name>/SKILL.md with the given front matter and body.
 inline void write_skill(const fs::path& root, const std::string& name, const std::string& description,
                         const std::vector<std::string>& requires_list, const std::string& body) {
     std::string fm = "---\nname: " + name + "\ndescription: " + description + "\n";
@@ -226,6 +194,6 @@ inline void write_skill(const fs::path& root, const std::string& name, const std
     write_text(root / name / "SKILL.md", fm + "---\n" + body + "\n");
 }
 
-}  // namespace test_helpers
+}
 
 using namespace test_helpers;

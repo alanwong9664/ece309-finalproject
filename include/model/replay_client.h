@@ -1,5 +1,3 @@
-// include/model/replay_client.h
-
 #pragma once
 #include "model/model_client.h"
 #include <string>

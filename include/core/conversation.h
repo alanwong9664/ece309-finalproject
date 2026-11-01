@@ -1,9 +1,3 @@
-// reference/p2/include/core/conversation.h
-//
-// INSTRUCTOR REFERENCE for P2. Used only when you configure with
-//   cmake -DUSE_P2_REFERENCE=ON ..
-// Otherwise your own include/core/conversation.h is used.
-
 #pragma once
 #include "core/message.h"
 #include <cstddef>
@@ -22,7 +16,7 @@ public:
 
     std::size_t    size() const noexcept;
     std::size_t    capacity() const noexcept;
-    const Message& at(std::size_t i) const;   // throws std::out_of_range
+    const Message& at(std::size_t i) const;
 
     const Message* begin() const noexcept { return data_; }
     const Message* end()   const noexcept { return data_ + size_; }

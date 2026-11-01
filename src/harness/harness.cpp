@@ -1,5 +1,3 @@
-// src/harness/harness.cpp — PROVIDED.
-
 #include "harness/harness.h"
 #include "core/sentinel_scanner.h"
 #include "memory/context_builder.h"
@@ -12,8 +10,6 @@
 
 namespace {
 
-// Pipes model output to the terminal through YOUR SentinelScanner, and keeps
-// the text that was shown so it can be stored in the conversation.
 class StreamingSink : public TokenSink {
 public:
     explicit StreamingSink(OutputSink& out) : out_(out), scanner_(std::string(kEndSentinel)) {}
@@ -54,7 +50,7 @@ std::string preview(const std::string& s, std::size_t limit = 60) {
     return out;
 }
 
-}  // namespace
+}
 
 Harness::Harness(std::unique_ptr<ModelClient> model, HarnessConfig cfg,
                  ToolRegistry* tools, ToolContext* ctx)
@@ -114,10 +110,8 @@ StopReason Harness::run(InputSource& in, OutputSink& out) {
 
         append(Message(Role::User, user_text));
 
-        // Inner tool loop: keep asking the model, without a new user turn,
-        // for as long as it keeps calling tools (bounded by max_tool_steps).
         for (int step = 0;; ++step) {
-            Conversation sent;   // only filled when a context budget is set
+            Conversation sent;
             if (cfg_.context_budget > 0) {
                 try {
                     sent = context_for_model(&out);
@@ -135,8 +129,6 @@ StopReason Harness::run(InputSource& in, OutputSink& out) {
             }
             out.write("\n");
 
-            // Store what the model said, including the sentinel if it was
-            // seen, so a saved transcript replays to the same ending.
             std::string reply = sink.text();
             if (sink.stopped()) reply += kEndSentinel;
             append(Message(Role::Assistant, reply));
@@ -154,7 +146,7 @@ StopReason Harness::run(InputSource& in, OutputSink& out) {
                 dispatcher_->handle(conv_.at(conv_.size() - 1), *ctx_, &calls);
             for (const DispatchedCall& c : calls) print_call(out, c);
             for (std::size_t i = 0; i < results.size(); ++i) {
-                // Skill instructions stay in context: pin successful load_skill results.
+
                 bool pin = i < calls.size() && calls[i].tool_name == "load_skill" && calls[i].result.ok;
                 append(std::move(results[i]), pin);
             }

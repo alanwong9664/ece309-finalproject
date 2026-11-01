@@ -1,26 +1,3 @@
-// src/main.cpp — PROVIDED.
-//
-// Usage:
-//   miniharness [--script FILE | --replay FILE] [--save FILE]
-//               [--max-turns N] [--max-tool-steps N]
-//               [--workspace DIR] [--no-tools] [--tools]
-//               [--skills DIR] [--memory FILE] [--audit FILE]
-//               [--context-budget N] [--keep-recent N]
-//
-//   Final project:
-//   --skills DIR          skill library to scan (default: ./skills if present)
-//   --memory FILE         load memories from FILE and save every change to it
-//                         (default: memories live only for this run)
-//   --audit FILE          append every run_command decision to FILE
-//   --context-budget N    send the model at most ~N tokens (select_context)
-//   --keep-recent N       newest messages never dropped (default 4)
-//
-//   --tools        print every registered tool (name, description, schema)
-//                  and exit
-//   --no-tools     run exactly like P2: no registry, no system message
-//   --workspace    root directory the file tools may touch (default:
-//                  ./workspace, created if missing)
-
 #include "harness/harness.h"
 #include "harness/transcript.h"
 #include "model/replay_client.h"
@@ -59,12 +36,11 @@ public:
     void write(std::string_view text) override { std::cout << text << std::flush; }
 };
 
-// Asks the person at the terminal to approve an Ask decision.
 class TerminalConfirmer : public Confirmer {
 public:
     TerminalConfirmer(InputSource& in, OutputSink& out) : in_(in), out_(out) {}
     bool confirm(const CommandRequest& req, const std::string& reason) override {
-        (void)reason;   // the policy's wording is the student's; keep the prompt fixed
+        (void)reason;
         out_.write("[confirm] Run `" + req.command_line() + "`? (y/n) ");
         std::string answer = in_.read_line();
         if (in_.is_eof()) { out_.write("\n"); return false; }
@@ -75,7 +51,6 @@ private:
     OutputSink&  out_;
 };
 
-// The default permission policy for run_command (spec §5.4).
 std::unique_ptr<PolicyChain> build_default_policy(const Clock& clock) {
     auto chain = std::make_unique<PolicyChain>();
     chain->add(std::make_unique<ArgumentPatternPolicy>(std::vector<std::string>{
@@ -108,7 +83,7 @@ int usage(const char* argv0) {
     return 2;
 }
 
-}  // namespace
+}
 
 int main(int argc, char* argv[]) {
     std::string script_path = "scripts/greeting.script";
@@ -145,8 +120,7 @@ int main(int argc, char* argv[]) {
     }
 
     try {
-        // With --no-tools nothing from P3 is constructed, so the harness runs
-        // even before your P3 classes work.
+
         std::optional<ToolRegistry> registry;
         std::optional<ToolContext>  ctx;
         if (!no_tools || list_tools) {
@@ -162,8 +136,6 @@ int main(int argc, char* argv[]) {
         StdioInput in;
         StdioOutput out;
 
-        // Final project services. They live here, in main, and the tools
-        // reach them through the ToolContext pointers.
         MemoryStore                  memory;
         SkillCatalog                 skills;
         SteadyClock                  clock;

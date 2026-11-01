@@ -1,7 +1,3 @@
-// reference/p2/src/conversation.cpp — INSTRUCTOR REFERENCE for P2.
-//
-// Growable array, growth factor 2, first allocation of 2 slots.
-
 #include "core/conversation.h"
 
 #include <stdexcept>
@@ -18,7 +14,7 @@ Conversation::Conversation(const Conversation& other)
     try {
         for (std::size_t i = 0; i < other.size_; ++i) data_[i] = other.data_[i];
     } catch (...) {
-        delete[] data_;            // a Message copy threw: don't leak the buffer
+        delete[] data_;
         throw;
     }
     size_ = other.size_;
@@ -26,7 +22,7 @@ Conversation::Conversation(const Conversation& other)
 
 Conversation& Conversation::operator=(const Conversation& other) {
     if (this != &other) {
-        Conversation tmp(other);   // copy-and-swap: strong exception guarantee
+        Conversation tmp(other);
         swap(tmp);
     }
     return *this;

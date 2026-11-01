@@ -18,7 +18,7 @@ std::vector<std::size_t> SkillIndex::search(std::string_view query, std::size_t 
         const auto* ids = postings(word);
         if (ids) for (std::size_t id : *ids) ++scores[id];
     }
-    using Hit = std::pair<std::size_t, std::size_t>; // score, document id
+    using Hit = std::pair<std::size_t, std::size_t>;
     std::vector<Hit> hits;
     hits.reserve(scores.size());
     for (const auto& entry : scores) hits.push_back({entry.second, entry.first});

@@ -1,13 +1,3 @@
-// tests/p3/test_loop.cpp — PROVIDED.
-//
-// End-to-end tests of the tool loop: model -> tool -> model with no user turn
-// in between. These use the provided Harness and dispatcher, but they only
-// pass once YOUR ToolRegistry, Workspace::resolve and calc_evaluate work.
-// Read them to see how your classes are used. Do not modify this file.
-//
-//   ./build/test_loop             run all
-//   ./build/test_loop loop_chain  run tests whose names start with "loop_chain"
-
 #include "../mini_test.h"
 #include "../test_helpers.h"
 
@@ -41,11 +31,11 @@ struct LoopFixture {
         write_text(dir.path() / "todo.txt", "- buy milk\n");
     }
 };
-}  // namespace
+}
 
 TEST(loop_model_tool_model_without_user_turn) {
     LoopFixture f;
-    REQUIRE(f.registry.find("calculator") != nullptr);   // needs your ToolRegistry
+    REQUIRE(f.registry.find("calculator") != nullptr);
     int model_calls = 0;
     std::vector<Role> seen;
     auto model = std::make_unique<ListModel>(
@@ -60,10 +50,10 @@ TEST(loop_model_tool_model_without_user_turn) {
     StopReason why = h.run(in, out);
     CHECK(why.kind == StopReason::Kind::UserExit);
     CHECK(model_calls == 2);
-    CHECK(in.reads == 2);                       // one real turn, then EOF
+    CHECK(in.reads == 2);
     REQUIRE(seen.size() == 2);
     CHECK(seen[0] == Role::User);
-    CHECK(seen[1] == Role::Tool);               // second call saw the tool result
+    CHECK(seen[1] == Role::Tool);
     const Conversation& c = h.conversation();
     REQUIRE(c.size() == 4);
     CHECK(c.at(0).role() == Role::User);
@@ -76,7 +66,7 @@ TEST(loop_model_tool_model_without_user_turn) {
 
 TEST(loop_escape_attempt_is_an_error_not_a_crash) {
     LoopFixture f;
-    REQUIRE(f.registry.find("calculator") != nullptr);   // needs your ToolRegistry
+    REQUIRE(f.registry.find("calculator") != nullptr);
     int model_calls = 0;
     auto model = std::make_unique<ListModel>(
         std::vector<std::string>{
@@ -91,7 +81,7 @@ TEST(loop_escape_attempt_is_an_error_not_a_crash) {
     h.run(in, out);
     CHECK(model_calls == 3);
     const Conversation& c = h.conversation();
-    REQUIRE(c.size() == 6);   // user, asst, tool(error), asst, tool(ok), asst
+    REQUIRE(c.size() == 6);
     CHECK(field(result_json(c.at(2)), "ok").as_bool() == false);
     CHECK(field(result_json(c.at(4)), "ok").as_bool() == true);
     CHECK(out.data.find("[tool read_file e1 -> error]") != std::string::npos);
@@ -99,7 +89,7 @@ TEST(loop_escape_attempt_is_an_error_not_a_crash) {
 
 TEST(loop_chained_tool_rounds) {
     LoopFixture f;
-    REQUIRE(f.registry.find("calculator") != nullptr);   // needs your ToolRegistry
+    REQUIRE(f.registry.find("calculator") != nullptr);
     int model_calls = 0;
     auto model = std::make_unique<ListModel>(
         std::vector<std::string>{
@@ -115,7 +105,7 @@ TEST(loop_chained_tool_rounds) {
     CHECK(h.run(in, out).kind == StopReason::Kind::Sentinel);
     CHECK(model_calls == 4);
     CHECK(in.reads == 1);
-    REQUIRE(h.conversation().size() == 8);   // user + 4 assistant + 3 tool
+    REQUIRE(h.conversation().size() == 8);
     CHECK(field(result_json(h.conversation().at(2)), "ok").as_bool());
     CHECK(field(result_json(h.conversation().at(4)), "content").as_string() == "7");
     CHECK(field(result_json(h.conversation().at(6)), "content").as_string() == "42");
@@ -123,7 +113,7 @@ TEST(loop_chained_tool_rounds) {
 
 TEST(loop_tool_step_limit) {
     LoopFixture f;
-    REQUIRE(f.registry.find("calculator") != nullptr);   // needs your ToolRegistry
+    REQUIRE(f.registry.find("calculator") != nullptr);
     std::vector<std::string> replies;
     for (int i = 0; i < 10; ++i) replies.push_back(call("r", "calculator", R"({"expression":"1"})"));
     replies.push_back("done<|end_conversation|>");
@@ -136,7 +126,7 @@ TEST(loop_tool_step_limit) {
     h.run(in, out);
     CHECK(out.data.find("tool step limit") != std::string::npos);
     CHECK(model_calls >= 4);
-    CHECK(in.reads >= 2);   // control went back to the user
+    CHECK(in.reads >= 2);
 }
 
 TEST(loop_without_registry_is_p2_behavior) {
@@ -154,7 +144,7 @@ TEST(loop_without_registry_is_p2_behavior) {
 
 TEST(loop_sentinel_wins_over_tool_call) {
     LoopFixture f;
-    REQUIRE(f.registry.find("calculator") != nullptr);   // needs your ToolRegistry
+    REQUIRE(f.registry.find("calculator") != nullptr);
     int model_calls = 0;
     auto model = std::make_unique<ListModel>(
         std::vector<std::string>{
@@ -170,7 +160,7 @@ TEST(loop_sentinel_wins_over_tool_call) {
 
 TEST(loop_client_error) {
     LoopFixture f;
-    REQUIRE(f.registry.find("calculator") != nullptr);   // needs your ToolRegistry
+    REQUIRE(f.registry.find("calculator") != nullptr);
     LinesInput in({"hi", "again"});
     StringOutput out;
     Harness h(std::make_unique<ListModel>(std::vector<std::string>{"only one"}), HarnessConfig{},
@@ -182,7 +172,7 @@ TEST(loop_client_error) {
 
 TEST(loop_system_message_lists_tools) {
     LoopFixture f;
-    REQUIRE(f.registry.find("calculator") != nullptr);   // needs your ToolRegistry
+    REQUIRE(f.registry.find("calculator") != nullptr);
     HarnessConfig cfg;
     cfg.system_message = "Tools:\n" + describe_tools(f.registry);
     Harness h(std::make_unique<ListModel>(std::vector<std::string>{}), cfg, &f.registry, &f.ctx);
@@ -195,7 +185,7 @@ TEST(loop_system_message_lists_tools) {
 
 TEST(loop_transcript_round_trip_with_tools) {
     LoopFixture f;
-    REQUIRE(f.registry.find("calculator") != nullptr);   // needs your ToolRegistry
+    REQUIRE(f.registry.find("calculator") != nullptr);
     const std::string path = (f.dir.path() / "t.txt").string();
     std::vector<std::string> replies = {
         "Reading." + call("c1", "read_file", R"({"path":"todo.txt"})"),
@@ -221,8 +211,7 @@ TEST(loop_transcript_round_trip_with_tools) {
         CHECK(loaded.at(i).role() == first.at(i).role());
         CHECK(loaded.at(i).content() == first.at(i).content());
     }
-    // Replaying the saved assistant turns re-runs the same tools and
-    // reproduces the same conversation.
+
     LinesInput in2({"todo?", "thanks"});
     StringOutput out2;
     HarnessConfig cfg2;

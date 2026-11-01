@@ -1,5 +1,3 @@
-// src/tools/agent_tools.cpp — PROVIDED.
-
 #include "tools/agent_tools.h"
 #include "memory/memory_store.h"
 #include "policy/audit_log.h"
@@ -46,7 +44,6 @@ bool get_opt_string(const JsonValue& args, const char* key, std::string* out, st
     return get_string(args, key, out, err);
 }
 
-// Optional positive integer, 1..100.
 bool get_k(const JsonValue& args, std::size_t dflt, std::size_t* out, std::string* err) {
     const JsonValue* v = args.find("k");
     if (v == nullptr) { *out = dflt; return true; }
@@ -66,9 +63,7 @@ ToolResult save_memory(ToolContext& ctx, std::string ok_text) {
     return ToolResult::success(std::move(ok_text));
 }
 
-}  // namespace
-
-// ---- memory --------------------------------------------------------------
+}
 
 RememberTool::RememberTool()
     : schema_(make_schema({{"text", prop("string", "what to remember")}}, {"text"})) {}
@@ -114,7 +109,7 @@ ToolResult ForgetTool::invoke(const JsonValue& args, ToolContext& ctx) {
 
 ListMemoriesTool::ListMemoriesTool() : schema_(make_schema({}, {})) {}
 std::string ListMemoriesTool::description() const { return "List every memory, oldest first."; }
-ToolResult ListMemoriesTool::invoke(const JsonValue& /*args*/, ToolContext& ctx) {
+ToolResult ListMemoriesTool::invoke(const JsonValue&  , ToolContext& ctx) {
     if (!ctx.memory) return ToolResult::failure("memory is disabled");
     std::vector<MemoryRecord> all = ctx.memory->list();
     if (all.empty()) return ToolResult::success("no memories");
@@ -122,8 +117,6 @@ ToolResult ListMemoriesTool::invoke(const JsonValue& /*args*/, ToolContext& ctx)
     for (const MemoryRecord& r : all) out += MemoryStore::format_id(r.id) + ": " + r.text + "\n";
     return ToolResult::success(out);
 }
-
-// ---- skills --------------------------------------------------------------
 
 ListSkillsTool::ListSkillsTool()
     : schema_(make_schema({{"query", prop("string", "optional search words")},
@@ -171,8 +164,6 @@ ToolResult SkillDependentsTool::invoke(const JsonValue& args, ToolContext& ctx) 
     return ToolResult::success(out);
 }
 
-// ---- run_command ------------------------------------------------------------
-
 RunCommandTool::RunCommandTool()
     : schema_(make_schema({{"program", prop("string", "program name, e.g. ls")},
                            {"args", prop("array", "arguments, each a string")}},
@@ -200,8 +191,7 @@ ToolResult RunCommandTool::invoke(const JsonValue& args, ToolContext& ctx) {
         d = yes ? Decision::allow("confirmed by the user (" + d.reason + ")", d.policy)
                 : Decision::deny(ctx.confirmer ? "the user declined" : "needs confirmation, but no one can confirm", d.policy);
     }
-    // Record BEFORE running: if the command hung or crashed the harness, the
-    // decision would still be on file.
+
     if (ctx.audit) ctx.audit->record(req, d);
 
     if (d.kind != Decision::Kind::Allow)

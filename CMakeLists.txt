@@ -1,10 +1,3 @@
-# CMakeLists.txt — ECE 309 Final Project (MiniHarness: skills, memory, and command policy)
-#
-#   cmake -S . -B build                                   # YOUR P2 + P3 code
-#   cmake -S . -B build -DUSE_P2_REFERENCE=ON             # instructor's P2 instead of yours
-#   cmake -S . -B build -DUSE_P3_REFERENCE=ON             # instructor's P3 instead of yours
-#   cmake --build build && (cd build && ctest --output-on-failure)
-
 cmake_minimum_required(VERSION 3.16)
 project(MiniHarness VERSION 4.0 LANGUAGES CXX)
 
@@ -26,7 +19,6 @@ if(MH_SANITIZE)
   add_link_options(-fsanitize=address,undefined)
 endif()
 
-# ---- P2 carry-over: your code, or the reference -----------------------------
 if(USE_P2_REFERENCE)
   message(STATUS "P2 code: instructor reference (reference/p2)")
   set(P2_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/reference/p2/include)
@@ -47,7 +39,6 @@ else()
   set(P2_SOURCES src/core/conversation.cpp src/core/sentinel_scanner.cpp)
 endif()
 
-# ---- P3 carry-over: your code, or the reference -----------------------------
 if(USE_P3_REFERENCE)
   message(STATUS "P3 code: instructor reference (reference/p3)")
   set(P3_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/reference/p3/include)
@@ -70,26 +61,24 @@ else()
   set(P3_SOURCES src/tools/tool_registry.cpp src/tools/workspace.cpp src/tools/calculator_eval.cpp)
 endif()
 
-# ---- Everything except main() lives in one library --------------------------
 add_library(harness_core STATIC
   ${P2_SOURCES}
   ${P3_SOURCES}
-  # Final project: you implement (plus the two header-only templates
-  # include/util/min_heap.h and include/util/lru_cache.h)
+
   src/memory/memory_index.cpp
   src/memory/context_builder.cpp
   src/policy/policies.cpp
   src/policy/policy_chain.cpp
   src/skills/dep_graph.cpp
   src/skills/skill_index.cpp
-  # Final project: provided
+
   src/util/text.cpp
   src/memory/memory_store.cpp
   src/policy/audit_log.cpp
   src/skills/skill_catalog.cpp
   src/skills/skill_index_linear.cpp
   src/tools/agent_tools.cpp
-  # Earlier projects: provided
+
   src/json/json_value.cpp
   src/tools/workspace_provided.cpp
   src/tools/calculator_tokenize.cpp
@@ -103,38 +92,37 @@ add_library(harness_core STATIC
   src/model/scripted_client.cpp
   src/model/replay_client.cpp
 )
-# Reference headers (if selected) must be found BEFORE include/.
+
 target_include_directories(harness_core PUBLIC ${P2_INCLUDE_DIR} ${P3_INCLUDE_DIR} ${CMAKE_SOURCE_DIR}/include)
 
 add_executable(miniharness src/main.cpp)
 target_link_libraries(miniharness PRIVATE harness_core)
 
-# ---- Tests -------------------------------------------------------------------
 enable_testing()
 
-add_executable(test_p2 tests/p2/test_p2.cpp)               # P2 regression (provided)
+add_executable(test_p2 tests/p2/test_p2.cpp)
 target_link_libraries(test_p2 PRIVATE harness_core)
 add_test(NAME p2_regression COMMAND test_p2 WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 
-add_executable(test_loop tests/p3/test_loop.cpp)           # P3 tool loop (provided)
+add_executable(test_loop tests/p3/test_loop.cpp)
 target_link_libraries(test_loop PRIVATE harness_core)
 add_test(NAME p3_tool_loop COMMAND test_loop WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 
-add_executable(test_final tests/final/test_final.cpp)      # YOUR tests
+add_executable(test_final tests/final/test_final.cpp)
 target_link_libraries(test_final PRIVATE harness_core)
 add_test(NAME final COMMAND test_final WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 
-if(EXISTS ${CMAKE_SOURCE_DIR}/tests/p3/test_p3.cpp)              # instructor only
+if(EXISTS ${CMAKE_SOURCE_DIR}/tests/p3/test_p3.cpp)
   add_executable(test_p3 tests/p3/test_p3.cpp)
   target_link_libraries(test_p3 PRIVATE harness_core)
   add_test(NAME p3_hidden COMMAND test_p3 WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 endif()
-if(EXISTS ${CMAKE_SOURCE_DIR}/tests/provided/test_provided.cpp)  # instructor only
+if(EXISTS ${CMAKE_SOURCE_DIR}/tests/provided/test_provided.cpp)
   add_executable(test_provided tests/provided/test_provided.cpp)
   target_link_libraries(test_provided PRIVATE harness_core)
   add_test(NAME provided COMMAND test_provided WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 endif()
-if(EXISTS ${CMAKE_SOURCE_DIR}/tests/final_hidden/test_hidden.cpp)  # instructor only
+if(EXISTS ${CMAKE_SOURCE_DIR}/tests/final_hidden/test_hidden.cpp)
   add_executable(test_hidden tests/final_hidden/test_hidden.cpp)
   target_link_libraries(test_hidden PRIVATE harness_core)
   add_test(NAME final_hidden COMMAND test_hidden WORKING_DIRECTORY ${CMAKE_BINARY_DIR})

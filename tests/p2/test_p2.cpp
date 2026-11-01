@@ -1,10 +1,3 @@
-// tests/p2/test_p2.cpp
-//
-// PROVIDED. P2 regression suite. It uses only the P2 public interface of
-// Conversation and SentinelScanner, plus the provided Harness with NO tools,
-// so it must pass unchanged on top of your P2 code (interface-freeze rule).
-// You may add your own P2 tests to this file.
-
 #include "../mini_test.h"
 
 #include "core/conversation.h"
@@ -69,9 +62,7 @@ std::string scan_all(SentinelScanner& s, const std::vector<std::string>& chunks,
 
 const std::string kSent = "<|end_conversation|>";
 
-}  // namespace
-
-// ---------------------------------------------------------------- Conversation
+}
 
 TEST(conv_empty) {
     Conversation c;
@@ -88,7 +79,7 @@ TEST(conv_append_and_order) {
     for (int i = 0; i < 100; ++i) CHECK(c.at(i + 1).content() == std::to_string(i));
 }
 
-TEST(conv_holds_tool_role) {   // P3: the new enum value must flow through
+TEST(conv_holds_tool_role) {
     Conversation c;
     c.append(Message(Role::Tool, "<|tool_result|>{}<|/tool_result|>"));
     REQUIRE(c.size() == 1);
@@ -117,7 +108,7 @@ TEST(conv_copy_is_deep) {
     CHECK(c.begin() != a.begin());
     CHECK(c.at(4).content() == "m4");
     Conversation& alias = c;
-    c = alias;   // self-assignment must be harmless
+    c = alias;
     CHECK(c.size() == 5);
 }
 
@@ -127,7 +118,7 @@ TEST(conv_move_steals) {
     const Message* p = a.begin();
     Conversation b = std::move(a);
     CHECK(b.begin() == p);
-    CHECK(a.size() == 0);   // NOLINT(bugprone-use-after-move): spec requires valid+empty
+    CHECK(a.size() == 0);
     Conversation c;
     c.append(Message(Role::User, "old"));
     c = std::move(b);
@@ -136,8 +127,6 @@ TEST(conv_move_steals) {
     a.append(Message(Role::User, "moved-from is reusable"));
     CHECK(a.size() == 1);
 }
-
-// ---------------------------------------------------------- SentinelScanner
 
 TEST(scan_clean_text) {
     SentinelScanner s(kSent);
@@ -173,8 +162,6 @@ TEST(scan_false_alarm) {
     CHECK(scan_all(s, {"Here is <|end_", "world|> done"}, &found) == "Here is <|end_world|> done");
     CHECK(!found);
 }
-
-// ------------------------------------------------- Harness (no tools = P2)
 
 TEST(harness_turn_limit) {
     LinesInput in({"a", "b", "c", "d", "e"});

@@ -1,5 +1,3 @@
-// src/skills/skill_catalog.cpp — PROVIDED.
-
 #include "skills/skill_catalog.h"
 
 #include <algorithm>
@@ -26,8 +24,6 @@ bool valid_name(const std::string& n) {
     return true;
 }
 
-// Reads lines up to and including the closing "---" of the front matter and
-// stops there: the body is not read.
 bool read_front_matter(const fs::path& file, std::string* out) {
     std::ifstream in(file, std::ios::binary);
     if (!in) return false;
@@ -40,10 +36,10 @@ bool read_front_matter(const fs::path& file, std::string* out) {
     return true;
 }
 
-}  // namespace
+}
 
 bool SkillCatalog::parse_front_matter(std::string_view text, SkillMeta* out, std::string* error) {
-    // Split into lines.
+
     std::vector<std::string> lines;
     std::string cur;
     for (char c : text) {
@@ -168,7 +164,7 @@ bool SkillCatalog::body(const SkillMeta& meta, std::string* out, std::string* er
     if (!in) { *error = "cannot read " + meta.file.string(); return false; }
     std::string all((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
     ++body_reads_;
-    // Skip the front matter: everything up to and including the 2nd "---" line.
+
     std::size_t pos = 0;
     int fences = 0;
     while (pos < all.size() && fences < 2) {

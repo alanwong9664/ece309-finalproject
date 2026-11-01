@@ -1,5 +1,3 @@
-// include/model/model_client.h
-
 #pragma once
 #include "core/conversation.h"
 #include <string_view>
@@ -21,7 +19,6 @@ public:
     virtual ~ModelClient() = default;
 
     virtual void generate(const Conversation& conv, TokenSink& sink) = 0;
-    
-    // NVI implementation provided in base
-    Message generate(const Conversation& conv); 
+
+    Message generate(const Conversation& conv);
 };

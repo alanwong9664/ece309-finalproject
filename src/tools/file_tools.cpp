@@ -1,9 +1,3 @@
-// src/tools/file_tools.cpp — PROVIDED.
-//
-// read_file, write_file, list_dir. Every path goes through
-// ctx.workspace.resolve() (yours) and then ctx.workspace.check_symlinks()
-// (provided) before any file is touched.
-
 #include "tools/file_tools.h"
 
 #include <algorithm>
@@ -18,7 +12,6 @@ namespace fs = std::filesystem;
 
 namespace {
 
-// Small helpers for building schemas without a JSON literal.
 JsonValue prop(const char* type, const char* description) {
     JsonValue p = JsonValue::object();
     p.set("type", JsonValue::string(type));
@@ -39,7 +32,6 @@ JsonValue make_schema(std::vector<std::pair<std::string, JsonValue>> props,
     return s;
 }
 
-// Fetches a required string argument, or explains what is wrong.
 bool get_string(const JsonValue& args, const char* key, std::string* out, std::string* err) {
     const JsonValue* v = args.find(key);
     if (v == nullptr) { *err = std::string("missing required argument: ") + key; return false; }
@@ -51,7 +43,6 @@ bool get_string(const JsonValue& args, const char* key, std::string* out, std::s
     return true;
 }
 
-// Optional bool; absent -> default. Wrong type -> error.
 bool get_bool(const JsonValue& args, const char* key, bool dflt, bool* out, std::string* err) {
     const JsonValue* v = args.find(key);
     if (v == nullptr) { *out = dflt; return true; }
@@ -63,9 +54,7 @@ bool get_bool(const JsonValue& args, const char* key, bool dflt, bool* out, std:
     return true;
 }
 
-}  // namespace
-
-// ---------------------------------------------------------------- read_file
+}
 
 ReadFileTool::ReadFileTool()
     : schema_(make_schema(
@@ -115,8 +104,6 @@ ToolResult ReadFileTool::invoke(const JsonValue& args, ToolContext& ctx) {
     return ToolResult::success(std::move(data));
 }
 
-// --------------------------------------------------------------- write_file
-
 WriteFileTool::WriteFileTool()
     : schema_(make_schema(
           {{"path", prop("string", "File path relative to the workspace root")},
@@ -156,8 +143,6 @@ ToolResult WriteFileTool::invoke(const JsonValue& args, ToolContext& ctx) {
     return ToolResult::success("wrote " + std::to_string(content.size()) + " bytes to " + path);
 }
 
-// ----------------------------------------------------------------- list_dir
-
 ListDirTool::ListDirTool()
     : schema_(make_schema(
           {{"path", prop("string", "Directory relative to the workspace root (default \".\")")},
@@ -195,7 +180,7 @@ ToolResult ListDirTool::invoke(const JsonValue& args, ToolContext& ctx) {
     };
 
     if (recursive) {
-        // Default options: directory symlinks are NOT followed.
+
         for (fs::recursive_directory_iterator it(dir, ec), end; !ec && it != end; it.increment(ec))
             describe(*it);
     } else {

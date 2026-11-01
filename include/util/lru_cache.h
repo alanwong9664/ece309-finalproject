@@ -37,7 +37,7 @@ public:
             move_to_front(it->second);
             return;
         }
-        // Guard ownership until the hash table has accepted the new entry.
+
         auto node = std::make_unique<Node>(Node{key, std::move(value), nullptr, nullptr});
         map_.emplace(node->key, node.get());
         push_front(node.release());

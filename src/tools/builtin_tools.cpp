@@ -1,5 +1,3 @@
-// src/tools/builtin_tools.cpp — PROVIDED.
-
 #include "tools/builtin_tools.h"
 #include "tools/agent_tools.h"
 #include "tools/calculator_tool.h"
@@ -15,7 +13,7 @@ std::size_t register_builtin_tools(ToolRegistry& registry) {
     added += registry.add(std::make_unique<WriteFileTool>());
     added += registry.add(std::make_unique<ListDirTool>());
     added += registry.add(std::make_unique<CalculatorTool>());
-    // Final project
+
     added += registry.add(std::make_unique<RememberTool>());
     added += registry.add(std::make_unique<RecallTool>());
     added += registry.add(std::make_unique<ForgetTool>());
@@ -24,7 +22,7 @@ std::size_t register_builtin_tools(ToolRegistry& registry) {
     added += registry.add(std::make_unique<LoadSkillTool>());
     added += registry.add(std::make_unique<SkillDependentsTool>());
     added += registry.add(std::make_unique<RunCommandTool>());
-    // To add a tool: write a new Tool subclass, then add one line here.
+
     return added;
 }
 

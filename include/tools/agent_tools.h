@@ -1,22 +1,3 @@
-// include/tools/agent_tools.h
-//
-// PROVIDED. The final project's tools. Each one is a thin wrapper: it checks
-// its JSON arguments, then calls the provided MemoryStore / SkillCatalog /
-// policy code, which in turn calls YOUR data structures.
-//
-//   remember        {"text": string}                    -> "remembered m3"
-//   recall          {"query": string, "k"?: number}     -> "m3: ..." lines, best first
-//   forget          {"id": "m3"}                        -> "forgot m3"
-//   list_memories   {}                                  -> every memory, oldest first
-//   list_skills     {"query"?: string, "k"?: number}    -> "name: description" lines
-//   load_skill      {"name": string}                    -> bodies, dependencies first
-//   skill_dependents{"name": string}                    -> skills that need it, nearest first
-//   run_command     {"program": string, "args"?: [string]}
-//        -> goes through ctx.policy (YOUR PolicyChain); Ask is resolved by
-//           ctx.confirmer; the final decision is written to ctx.audit BEFORE
-//           the command would run. Commands are SIMULATED: nothing is ever
-//           executed.
-
 #pragma once
 #include "tools/tool.h"
 

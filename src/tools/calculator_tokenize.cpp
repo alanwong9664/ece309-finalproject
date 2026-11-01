@@ -1,9 +1,3 @@
-// src/tools/calculator_tokenize.cpp — PROVIDED.
-//
-// Turns text into CalcTokens and checks the sequence is well-formed.
-// The check is a tiny two-state machine: at every point we either EXPECT AN
-// OPERAND (a number or '(') or EXPECT AN OPERATOR (+ - * / or ')').
-
 #include "tools/calculator.h"
 
 #include <cstdlib>
@@ -15,12 +9,12 @@ bool is_digit(char c) { return c >= '0' && c <= '9'; }
 
 std::string at(std::size_t pos) { return " at position " + std::to_string(pos); }
 
-}  // namespace
+}
 
 bool calc_tokenize(std::string_view s, std::vector<CalcToken>* out, std::string* error) {
     out->clear();
-    bool expect_operand = true;   // state of the machine
-    int  open_parens = 0;         // '(' seen minus ')' seen
+    bool expect_operand = true;
+    int  open_parens = 0;
     std::size_t i = 0;
 
     while (i < s.size()) {
@@ -28,7 +22,7 @@ bool calc_tokenize(std::string_view s, std::vector<CalcToken>* out, std::string*
         if (c == ' ' || c == '\t') { ++i; continue; }
 
         if (expect_operand) {
-            // A number, optionally with a '-' glued to its front.
+
             bool negative = false;
             std::size_t start = i;
             if (c == '-' && i + 1 < s.size() && is_digit(s[i + 1])) {
@@ -65,7 +59,6 @@ bool calc_tokenize(std::string_view s, std::vector<CalcToken>* out, std::string*
             return false;
         }
 
-        // expect an operator or ')'
         CalcToken t;
         switch (c) {
             case '+': t.kind = CalcToken::Kind::Plus;   break;
@@ -80,7 +73,7 @@ bool calc_tokenize(std::string_view s, std::vector<CalcToken>* out, std::string*
                 --open_parens;
                 out->push_back({CalcToken::Kind::RParen, 0.0});
                 ++i;
-                continue;   // still expecting an operator after ')'
+                continue;
             default:
                 *error = std::string("unexpected character '") + c + "'" + at(i);
                 return false;

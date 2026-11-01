@@ -1,5 +1,3 @@
-// src/util/text.cpp — PROVIDED.
-
 #include "util/text.h"
 
 #include <algorithm>
@@ -12,7 +10,7 @@ bool is_space(char c) {
     return c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f' || c == '\v';
 }
 char lower(char c) { return (c >= 'A' && c <= 'Z') ? static_cast<char>(c - 'A' + 'a') : c; }
-}  // namespace
+}
 
 std::vector<std::string> tokenize(std::string_view text) {
     std::vector<std::string> out;

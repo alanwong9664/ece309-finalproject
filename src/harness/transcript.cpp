@@ -1,5 +1,3 @@
-// src/harness/transcript.cpp — PROVIDED.
-
 #include "harness/transcript.h"
 
 #include <fstream>
@@ -39,7 +37,7 @@ bool load_transcript(const std::string& path, Conversation* out, std::string* er
         if (!line.empty() && line.back() == '\r') line.pop_back();
         if (line == "---") { finish(); continue; }
         if (!in_block) {
-            if (line.empty()) continue;   // tolerate blank lines between blocks
+            if (line.empty()) continue;
             const std::string prefix = "role: ";
             if (line.compare(0, prefix.size(), prefix) != 0 ||
                 !role_from_string(line.substr(prefix.size()), &role)) {

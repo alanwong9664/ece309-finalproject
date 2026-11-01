@@ -1,11 +1,9 @@
-// src/policy/audit_log.cpp — PROVIDED.
-
 #include "policy/audit_log.h"
 
 #include <fstream>
 
 namespace {
-// Fields are tab-separated; tabs/newlines/backslashes inside a field are escaped.
+
 std::string esc(const std::string& s) {
     std::string o;
     for (char c : s) {
@@ -36,7 +34,7 @@ std::vector<std::string> split_tabs(const std::string& line) {
     }
     return f;
 }
-}  // namespace
+}
 
 AuditLog::AuditLog(std::filesystem::path file) : file_(std::move(file)) {
     if (!file_.empty()) {
@@ -51,7 +49,7 @@ void AuditLog::record(const CommandRequest& req, const Decision& d) {
         std::ofstream out(file_, std::ios::app | std::ios::binary);
         out << e.seq << '\t' << esc(e.decision) << '\t' << esc(e.policy) << '\t'
             << esc(e.command) << '\t' << esc(e.reason) << '\n';
-        out.flush();   // on disk (in the OS) before the caller goes on
+        out.flush();
     }
     entries_.push_back(std::move(e));
 }

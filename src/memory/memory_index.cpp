@@ -68,8 +68,7 @@ void MemoryIndex::for_each_in_order(const std::function<void(const MemoryRecord&
     }
 }
 void MemoryIndex::clear() {
-    // Rotate left children upward, then delete roots with no left child.
-    // Destruction needs no recursion or allocation, even for a deep tree.
+
     while (root_) {
         if (root_->left) {
             Node* left = root_->left;

@@ -1,9 +1,3 @@
-// src/json/json_value.cpp — PROVIDED. You do not need to read this file.
-//
-// Representation: separate members (type tag + one field per kind).
-// The parser reads the text left to right; nesting depth is capped at
-// max_depth so hostile input like "[[[[[[..." produces an error, not a crash.
-
 #include "json/json_value.h"
 #include "util/number_format.h"
 
@@ -12,10 +6,6 @@
 #include <cstdlib>
 #include <stdexcept>
 #include <utility>
-
-// ---------------------------------------------------------------------------
-// Construction
-// ---------------------------------------------------------------------------
 
 JsonValue::JsonValue() = default;
 JsonValue::JsonValue(const JsonValue&) = default;
@@ -58,10 +48,6 @@ JsonValue JsonValue::object() {
     v.type_ = Type::Object;
     return v;
 }
-
-// ---------------------------------------------------------------------------
-// Inspection
-// ---------------------------------------------------------------------------
 
 JsonValue::Type JsonValue::type() const noexcept { return type_; }
 
@@ -106,10 +92,6 @@ const JsonValue* JsonValue::find(std::string_view key) const {
     return nullptr;
 }
 
-// ---------------------------------------------------------------------------
-// Building
-// ---------------------------------------------------------------------------
-
 void JsonValue::push_back(JsonValue v) {
     if (type_ != Type::Array) throw std::logic_error("JsonValue: push_back() on a non-array");
     items_.push_back(std::move(v));
@@ -140,10 +122,6 @@ bool JsonValue::operator==(const JsonValue& o) const {
     return false;
 }
 
-// ---------------------------------------------------------------------------
-// Serialization
-// ---------------------------------------------------------------------------
-
 namespace {
 
 void dump_string(const std::string& s, std::string& out) {
@@ -171,10 +149,8 @@ void dump_string(const std::string& s, std::string& out) {
     out += '"';
 }
 
-}  // namespace
+}
 
-// A small recursive helper; depth is bounded because every tree we build by
-// parsing is bounded by max_depth.
 static void dump_into(const JsonValue& v, std::string& out) {
     switch (v.type()) {
         case JsonValue::Type::Null:   out += "null"; break;
@@ -207,10 +183,6 @@ std::string JsonValue::dump() const {
     dump_into(*this, out);
     return out;
 }
-
-// ---------------------------------------------------------------------------
-// Parsing
-// ---------------------------------------------------------------------------
 
 namespace {
 
@@ -281,7 +253,7 @@ private:
 
     bool parse_array(JsonValue* out, std::size_t depth) {
         if (depth > max_depth_) return fail("maximum nesting depth exceeded");
-        ++pos_;  // '['
+        ++pos_;
         JsonValue arr = JsonValue::array();
         skip_ws();
         if (!at_end() && peek() == ']') { ++pos_; *out = std::move(arr); return true; }
@@ -302,7 +274,7 @@ private:
 
     bool parse_object(JsonValue* out, std::size_t depth) {
         if (depth > max_depth_) return fail("maximum nesting depth exceeded");
-        ++pos_;  // '{'
+        ++pos_;
         JsonValue obj = JsonValue::object();
         skip_ws();
         if (!at_end() && peek() == '}') { ++pos_; *out = std::move(obj); return true; }
@@ -368,7 +340,7 @@ private:
     }
 
     bool parse_string(std::string* out) {
-        ++pos_;  // opening quote
+        ++pos_;
         std::string s;
         for (;;) {
             if (at_end()) return fail("unterminated string");
@@ -377,7 +349,7 @@ private:
             if (c < 0x20) return fail("raw control character in string");
             if (c != '\\') { s += static_cast<char>(c); ++pos_; continue; }
 
-            ++pos_;  // backslash
+            ++pos_;
             if (at_end()) return fail("unterminated escape");
             char e = s_[pos_++];
             switch (e) {
@@ -393,7 +365,7 @@ private:
                     unsigned cp = 0;
                     if (!read_hex4(&cp)) return false;
                     if (cp >= 0xD800 && cp <= 0xDBFF) {
-                        // High surrogate: must be followed by \uDC00..\uDFFF.
+
                         if (pos_ + 2 > s_.size() || s_[pos_] != '\\' || s_[pos_ + 1] != 'u')
                             return fail("unpaired high surrogate");
                         pos_ += 2;
@@ -440,8 +412,7 @@ private:
             if (at_end() || !is_digit(peek())) return fail("expected digit in exponent");
             while (!at_end() && is_digit(peek())) ++pos_;
         }
-        // The span [start, pos_) is now a valid JSON number; strtod needs a
-        // NUL-terminated buffer, and string_view is not one.
+
         std::string token(s_.substr(start, pos_ - start));
         double d = std::strtod(token.c_str(), nullptr);
         if (!std::isfinite(d)) {
@@ -453,7 +424,7 @@ private:
     }
 };
 
-}  // namespace
+}
 
 JsonValue JsonValue::parse(std::string_view text, std::string* error_out,
                            std::size_t max_depth) {

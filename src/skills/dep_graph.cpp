@@ -29,11 +29,11 @@ bool DepGraph::order_from(const std::string& root, std::vector<std::string>* out
         *error = "unknown: " + root;
         return false;
     }
-    // Explicit DFS frames avoid exhausting the call stack on long chains.
+
     struct Frame { std::string name; std::size_t next; };
     std::vector<Frame> path{{root, 0}};
     std::unordered_map<std::string, int> color;
-    color[root] = 1; // gray; absent entries are white, 2 means black
+    color[root] = 1;
     while (!path.empty()) {
         Frame& frame = path.back();
         const auto& edges = requirements(frame.name);
@@ -60,7 +60,7 @@ bool DepGraph::order_from(const std::string& root, std::vector<std::string>* out
             path.push_back({target, 0});
         }
     }
-    return true; // A successful traversal leaves the caller's error untouched.
+    return true;
 }
 std::vector<std::string> DepGraph::dependents(const std::string& name) const {
     std::unordered_set<std::string> seen{name};

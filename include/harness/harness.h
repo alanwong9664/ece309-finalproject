@@ -1,18 +1,3 @@
-// include/harness/harness.h
-//
-// PROVIDED. The P2 turn loop, extended with the P3 tool loop:
-//
-//   user turn ──► model ──► [tool calls?] ──yes──► run tools, append results
-//                   ▲                                   │
-//                   └──────────── (no user turn) ───────┘
-//                               no
-//                               └──► back to the user
-//
-// Constructing a Harness without a ToolRegistry gives exactly the P2
-// behavior, so every P2 test still compiles and passes unchanged.
-//
-// Final project: optional context budget (HarnessConfig::context_budget).
-
 #pragma once
 #include "harness/tool_dispatcher.h"
 #include "model/model_client.h"
@@ -26,15 +11,12 @@
 inline constexpr std::string_view kEndSentinel = "<|end_conversation|>";
 
 struct HarnessConfig {
-    int         max_turns = 20;       // user turns before TurnLimit
-    int         max_tool_steps = 8;   // tool rounds allowed per user turn
-    std::string system_message;       // appended first if non-empty
+    int         max_turns = 20;
+    int         max_tool_steps = 8;
+    std::string system_message;
 
-    // Final project: if context_budget > 0, every model call receives only
-    // the messages chosen by YOUR select_context(); the full conversation is
-    // still kept (and saved by --save).
-    std::size_t context_budget = 0;   // tokens; 0 = send everything
-    std::size_t keep_recent = 4;      // newest messages that are never dropped
+    std::size_t context_budget = 0;
+    std::size_t keep_recent = 4;
 };
 
 class InputSource {
@@ -52,8 +34,7 @@ public:
 
 class Harness {
 public:
-    // `tools` and `ctx` are optional and NOT owned; if given, they must
-    // outlive the Harness. Pass both or neither.
+
     Harness(std::unique_ptr<ModelClient> model, HarnessConfig cfg,
             ToolRegistry* tools = nullptr, ToolContext* ctx = nullptr);
 
@@ -61,7 +42,6 @@ public:
 
     const Conversation& conversation() const { return conv_; }
 
-    // Final project: the messages the model would receive right now.
     Conversation context_for_model(OutputSink* report = nullptr) const;
 
 private:
@@ -70,7 +50,7 @@ private:
 
     std::unique_ptr<ModelClient>  model_;
     Conversation                  conv_;
-    std::vector<bool>             pinned_;   // parallel to conv_: load_skill results
+    std::vector<bool>             pinned_;
     HarnessConfig                 cfg_;
     ToolContext*                  ctx_ = nullptr;
     std::optional<ToolDispatcher> dispatcher_;

@@ -1,5 +1,3 @@
-// src/harness/tool_dispatcher.cpp — PROVIDED.
-
 #include "harness/tool_dispatcher.h"
 
 #include <exception>
@@ -23,7 +21,6 @@ std::string ToolDispatcher::format_result(const std::string& id, const ToolResul
 
 namespace {
 
-// Parses one call body and runs it. Fills `call` in all cases.
 void run_one(std::string_view body, ToolRegistry& registry, ToolContext& ctx,
              DispatchedCall* call) {
     std::string err;
@@ -61,8 +58,6 @@ void run_one(std::string_view body, ToolRegistry& registry, ToolContext& ctx,
     }
     call->tool_name = tool->name();
 
-    // Tools report failure as data; an exception escaping one is a bug in
-    // that tool. Contain it so one bad tool cannot take down the harness.
     try {
         call->result = tool->invoke(*args, ctx);
     } catch (const std::exception& e) {
@@ -72,7 +67,7 @@ void run_one(std::string_view body, ToolRegistry& registry, ToolContext& ctx,
     }
 }
 
-}  // namespace
+}
 
 std::vector<Message> ToolDispatcher::handle(const Message& assistant_msg, ToolContext& ctx,
                                             std::vector<DispatchedCall>* calls_out) {

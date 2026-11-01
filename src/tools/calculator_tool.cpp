@@ -1,5 +1,3 @@
-// src/tools/calculator_tool.cpp — PROVIDED.
-
 #include "tools/calculator_tool.h"
 #include "tools/calculator.h"
 #include "util/number_format.h"
@@ -9,9 +7,7 @@
 #include <vector>
 
 CalculatorTool::CalculatorTool() {
-    // {"type":"object",
-    //  "properties":{"expression":{"type":"string","description":"..."}},
-    //  "required":["expression"]}
+
     JsonValue expr = JsonValue::object();
     expr.set("type", JsonValue::string("string"));
     expr.set("description", JsonValue::string("Arithmetic using + - * / and parentheses, e.g. \"(2+3)*4\""));
@@ -50,7 +46,7 @@ bool CalculatorTool::evaluate(std::string_view expression, double* out, std::str
     return true;
 }
 
-ToolResult CalculatorTool::invoke(const JsonValue& args, ToolContext& /*ctx*/) {
+ToolResult CalculatorTool::invoke(const JsonValue& args, ToolContext&  ) {
     const JsonValue* e = args.find("expression");
     if (e == nullptr) return ToolResult::failure("missing required argument: expression");
     if (e->type() != JsonValue::Type::String)
