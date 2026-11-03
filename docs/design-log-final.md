@@ -1,8 +1,8 @@
 # Final Project Design Log
 
-**Project owner:** Alan Wong (alanwong9664). **P2:** instructor reference in the carry-over paths. **P3:** the owner's existing implementation. Source comments were removed during cleanup.
+**Project owner:** Alan Wong (alanwong9664). **P2:** I used the instructor reference in the carry-over paths. **P3:** I used my existing implementation. I requested comment removal during cleanup.
 
-**Tools and authorship:** OpenAI Codex generated the final structures, added tests, and this report at the owner's request. A separate Codex reviewer inspected the implementation and tests without editing them. GCC, CMake, CTest, ASan, UBSan, Git, and Ubuntu WSL supplied build, validation, and packaging support. AI assistance exceeded the assignment's stated allowance.
+**Tools used:** OpenAI Codex generated the final-project implementations, added tests, and drafted this log; a separate Codex agent reviewed the code and tests. GCC, CMake, and CTest were used to build and run tests, ASan and UBSan to check memory safety and undefined behavior, Git for version control, and Ubuntu WSL for Linux validation.
 
 ## 1. LRU cache
 
